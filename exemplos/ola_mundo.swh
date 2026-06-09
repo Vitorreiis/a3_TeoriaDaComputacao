@@ -1,0 +1,5 @@
+// ── EXEMPLO 1: Olá Mundo ─────────────────────────────────────────────────────
+maneno saudacao = "Jambo Dunia!"
+chapisha(saudacao)
+nambari x = 42
+chapisha(x)

@@ -1,0 +1,10 @@
+// ── EXEMPLO 4: Do-While + tipos mistos ───────────────────────────────────────
+nambari i = 0
+desimali total = 0.0
+kweli_uongo ativo = kweli
+fanya {
+  total = total + 1.5
+  i = i + 1
+} wakati (i < 4)
+chapisha(total)
+chapisha(ativo)

@@ -1,0 +1,7 @@
+// ── EXEMPLO 2: Fatorial com for ──────────────────────────────────────────────
+nambari n = 5
+nambari fat = 1
+kwa (nambari i = 1; i <= n; i = i + 1) {
+  fat = fat * i
+}
+chapisha(fat)

@@ -1,0 +1,11 @@
+// ── EXEMPLO 3: Fibonacci com while ───────────────────────────────────────────
+nambari a = 0
+nambari b = 1
+nambari cont = 10
+wakati (cont > 0) {
+  chapisha(a)
+  nambari temp = a + b
+  a = b
+  b = temp
+  cont = cont - 1
+}

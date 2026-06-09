@@ -1,0 +1,8 @@
+// ── EXEMPLO 5: Par ou Ímpar com input ────────────────────────────────────────
+nambari num = 0
+soma_nambari(num)
+kama (num % 2 == 0) {
+  chapisha("par")
+} sivyo {
+  chapisha("impar")
+}
