@@ -78,6 +78,20 @@ button:hover{
     opacity:.9;
 }
 
+#btnExecutar{
+    background:#3b82f6;
+}
+
+.tituloEntrada{
+    margin-top:20px;
+    margin-bottom:10px;
+    font-size:18px;
+}
+
+.campoEntrada{
+    height:90px;
+}
+
 .resultados{
     display:grid;
     grid-template-columns:1fr 1fr;

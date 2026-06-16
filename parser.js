@@ -1,15 +1,13 @@
-// ─── PARSER + ANÁLISE SEMÂNTICA + GERADOR DE CÓDIGO ──────────────────────────
-// Parser descendente recursivo sem recursão à esquerda.
-// A análise semântica (escopo, declarações) é feita embutida.
-// O código Python é emitido diretamente durante a análise.
+// Parser (analise sintatica) + checagem de variaveis + geracao do Python
+// usa descida recursiva, sem recursao a esquerda
 
-import { TK } from '../lexer.js';
+import { TK } from './lexer.js';
 
 function parse(tokens) {
   let pos = 0;
 
-  // ── Tabela de símbolos: pilha de escopos ──────────────────────────────────
-  const symtable = [{}]; // cada elemento: { nomVar: 'INT'|'FLOAT'|'STRING'|'BOOL' }
+  // tabela de simbolos = pilha de escopos. cada escopo guarda nome -> tipo da var
+  const symtable = [{}];
 
   function pushScope() { symtable.push({}); }
   function popScope()  { symtable.pop(); }
@@ -25,7 +23,7 @@ function parse(tokens) {
     return null;
   }
 
-  // ── Utilitários de token ──────────────────────────────────────────────────
+  // funcoes pra mexer nos tokens
   function cur()  { return tokens[pos]; }
   function peek(offset = 0) { return tokens[pos + offset]; }
 
@@ -50,16 +48,15 @@ function parse(tokens) {
   }
 
   function consumeTypeKw() {
-    return tokens[pos++].type; // garante que é tipo antes de chamar
+    return tokens[pos++].type; // so chamar quando ja sabe que e um tipo
   }
 
   function typeToPy(t) {
     return { INT: 'int', FLOAT: 'float', STRING: 'str', BOOL: 'bool' }[t];
   }
 
-  // ── Expressões (precedência via hierarquia de funções) ────────────────────
-  //  exprOr > exprAnd > exprNot > exprCmp > exprAdd > exprMul > exprUnary > exprPrimary
-
+  // expressoes. a ordem das funcoes ja da a precedencia dos operadores:
+  // or > and > not > comparacao > +/- > * / % > unario > primario
   function expr()      { return exprOr(); }
 
   function exprOr() {
@@ -133,7 +130,7 @@ function parse(tokens) {
     throw new Error(`[Linha ${t.line}] Erro sintático: expressão inválida perto de '${t.type}'${t.val !== undefined ? ` ('${t.val}')` : ''}`);
   }
 
-  // ── Bloco { stmts } ───────────────────────────────────────────────────────
+  // bloco entre chaves { ... }
   function block(indent) {
     eat(TK.LBRACE);
     pushScope();
@@ -144,17 +141,17 @@ function parse(tokens) {
     }
     popScope();
     eat(TK.RBRACE);
-    // Se o bloco ficou vazio, emite pass para Python válido
+    // se o bloco ficou vazio precisa de um pass senao o Python da erro
     if (lines.length === 0) lines.push('    '.repeat(indent) + 'pass');
     return lines.join('\n');
   }
 
-  // ── Statements ────────────────────────────────────────────────────────────
+  // comandos (statements)
   function stmt(indent) {
     const pad = '    '.repeat(indent);
     const t = cur();
 
-    // ── Declaração de variável: tipo ID [ = expr ] ──────────────────────────
+    // declaracao de variavel: tipo ID [ = expr ]
     if (isTypeKw()) {
       const declType = consumeTypeKw();
       const name = eat(TK.ID).val;
@@ -174,7 +171,7 @@ function parse(tokens) {
       }
     }
 
-    // ── Atribuição: ID = expr ───────────────────────────────────────────────
+    // atribuicao: ID = expr
     if (t.type === TK.ID) {
       const name = t.val;
       if (!lookupVar(name))
@@ -186,7 +183,7 @@ function parse(tokens) {
       return `${pad}${name} = ${e}`;
     }
 
-    // ── chapisha (print) ────────────────────────────────────────────────────
+    // chapisha vira print
     if (t.type === TK.PRINT) {
       pos++;
       eat(TK.LPAREN);
@@ -196,7 +193,7 @@ function parse(tokens) {
       return `${pad}print(${e})`;
     }
 
-    // ── soma / soma_nambari / soma_desimali (input) ─────────────────────────
+    // soma / soma_nambari / soma_desimali viram input()
     if (t.type === TK.INPUT || t.type === TK.INPUT_INT || t.type === TK.INPUT_FLOAT) {
       const kind = tokens[pos++].type;
       eat(TK.LPAREN);
@@ -210,7 +207,7 @@ function parse(tokens) {
       return `${pad}${name} = input()`;
     }
 
-    // ── kama (if) ───────────────────────────────────────────────────────────
+    // kama vira if (e sivyo vira else)
     if (t.type === TK.IF) {
       pos++;
       eat(TK.LPAREN);
@@ -221,7 +218,7 @@ function parse(tokens) {
       if (cur().type === TK.ELSE) {
         pos++;
         if (cur().type === TK.IF) {
-          // elif encadeado
+          // sivyo kama vira elif
           const elseif = stmt(indent);
           out += `\n${pad}el${elseif.trimStart()}`;
         } else {
@@ -232,7 +229,7 @@ function parse(tokens) {
       return out;
     }
 
-    // ── wakati (while) ──────────────────────────────────────────────────────
+    // wakati vira while
     if (t.type === TK.WHILE) {
       pos++;
       eat(TK.LPAREN);
@@ -242,7 +239,7 @@ function parse(tokens) {
       return `${pad}while ${cond}:\n${body}`;
     }
 
-    // ── fanya...wakati (do-while) ───────────────────────────────────────────
+    // fanya...wakati e o do-while. Python nao tem entao faco com while True + break
     if (t.type === TK.DO) {
       pos++;
       const body = block(indent + 1);
@@ -259,13 +256,13 @@ function parse(tokens) {
       );
     }
 
-    // ── kwa (for) ───────────────────────────────────────────────────────────
+    // kwa e o for. Python nao tem for desse jeito entao transformo num while
     if (t.type === TK.FOR) {
       pos++;
       eat(TK.LPAREN);
       pushScope();
 
-      // init: tipo ID = expr  |  ID = expr
+      // parte de inicio: pode ser "tipo ID = expr" ou so "ID = expr"
       let initCode = '';
       if (isTypeKw()) {
         const initType = consumeTypeKw();
@@ -287,7 +284,7 @@ function parse(tokens) {
       const cond = expr();
       eat(TK.SEMI);
 
-      // update: ID = expr
+      // parte do incremento: ID = expr
       const uname = eat(TK.ID).val;
       if (!lookupVar(uname))
         throw new Error(`[Linha ${cur().line}] Erro semântico: variável não declarada: '${uname}'`);
@@ -302,13 +299,13 @@ function parse(tokens) {
       return `${initCode}\n${pad}while ${cond}:\n${body}\n${upd}`;
     }
 
-    // Ponto-e-vírgula solto → ignora
+    // ponto e virgula sozinho, so ignora
     if (t.type === TK.SEMI) { pos++; return ''; }
 
     throw new Error(`[Linha ${t.line}] Erro sintático: instrução inesperada '${t.type}'${t.val !== undefined ? ` ('${t.val}')` : ''}`);
   }
 
-  // ── Programa principal ───────────────────────────────────────────────────
+  // le o programa inteiro, um comando atras do outro
   const output = [];
   while (cur().type !== TK.EOF) {
     const s = stmt(0);

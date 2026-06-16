@@ -1,5 +1,4 @@
-// ─── LEXER ─────────────────────────────────────────────────────────────────
-// Converte o código-fonte Kiswahili em uma sequência de tokens.
+// Lexer: le o codigo em Kiswahili e quebra em tokens
 
 const TK = {
   INT: 'INT', FLOAT: 'FLOAT', STRING: 'STRING', BOOL: 'BOOL',
@@ -44,20 +43,20 @@ function tokenize(src) {
   const len = src.length;
 
   while (i < len) {
-    // Espaços em branco
+    // pula espaco em branco
     if (/\s/.test(src[i])) {
       if (src[i] === '\n') line++;
       i++;
       continue;
     }
 
-    // Comentário de linha
+    // comentario com //
     if (src[i] === '/' && src[i + 1] === '/') {
       while (i < len && src[i] !== '\n') i++;
       continue;
     }
 
-    // String literal
+    // string entre aspas
     if (src[i] === '"') {
       let s = '';
       i++;
@@ -72,7 +71,7 @@ function tokenize(src) {
       continue;
     }
 
-    // Números (inteiros e decimais)
+    // numeros (int ou com ponto)
     if (/\d/.test(src[i])) {
       let s = '';
       while (i < len && /\d/.test(src[i])) { s += src[i]; i++; }
@@ -86,7 +85,7 @@ function tokenize(src) {
       continue;
     }
 
-    // Identificadores e palavras-chave
+    // nome de variavel ou palavra-chave
     if (/[a-zA-Z_]/.test(src[i])) {
       let s = '';
       while (i < len && /[a-zA-Z0-9_]/.test(src[i])) { s += src[i]; i++; }
@@ -95,14 +94,14 @@ function tokenize(src) {
       continue;
     }
 
-    // Operadores de dois caracteres
+    // operadores de dois caracteres (==, !=, <=, >=)
     const two = src.slice(i, i + 2);
     if (two === '==') { tokens.push({ type: TK.EQ,  line }); i += 2; continue; }
     if (two === '!=') { tokens.push({ type: TK.NEQ, line }); i += 2; continue; }
     if (two === '<=') { tokens.push({ type: TK.LTE, line }); i += 2; continue; }
     if (two === '>=') { tokens.push({ type: TK.GTE, line }); i += 2; continue; }
 
-    // Operadores e delimitadores de um caractere
+    // operadores e simbolos de um caractere
     const single = {
       '=': TK.ASSIGN, '<': TK.LT,    '>': TK.GT,
       '+': TK.PLUS,   '-': TK.MINUS, '*': TK.STAR, '/': TK.SLASH, '%': TK.MOD,

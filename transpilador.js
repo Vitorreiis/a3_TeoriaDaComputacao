@@ -1,22 +1,19 @@
 #!/usr/bin/env node
-// ─── TRANSPILADOR KISWAHILI → PYTHON ─────────────────────────────────────────
-// Uso:
-//   node transpilador.js <arquivo.swh>              → imprime Python no terminal
-//   node transpilador.js <arquivo.swh> -o <saida.py> → salva em arquivo
+// programa principal do transpilador de Kiswahili pra Python
+// uso: node transpilador.js arquivo.swh        (mostra no terminal)
+//      node transpilador.js arquivo.swh -o saida.py   (salva em arquivo)
 
 const fs   = require('fs');
 const path = require('path');
 const { tokenize } = require('./lexer');
 const { parse }    = require('./parser');
 
-// ── Lê argumentos ────────────────────────────────────────────────────────────
+// pega os argumentos da linha de comando
 const args = process.argv.slice(2);
 
 if (args.length === 0 || args[0] === '--help' || args[0] === '-h') {
   console.log(`
-╔══════════════════════════════════════════════════════╗
-║       Transpilador Kiswahili → Python  v1.0          ║
-╚══════════════════════════════════════════════════════╝
+Transpilador Kiswahili -> Python
 
 Uso:
   node transpilador.js <arquivo.swh>
@@ -25,7 +22,6 @@ Uso:
 Exemplos:
   node transpilador.js programa.swh
   node transpilador.js fatorial.swh -o fatorial.py
-  node transpilador.js programa.swh -o saida.py && python saida.py
 `);
   process.exit(0);
 }
@@ -34,45 +30,42 @@ const inputFile = args[0];
 const outFlag   = args.indexOf('-o');
 const outputFile = outFlag !== -1 ? args[outFlag + 1] : null;
 
-// ── Verifica se o arquivo existe ─────────────────────────────────────────────
+// confere se o arquivo existe
 if (!fs.existsSync(inputFile)) {
-  console.error(`\n❌  Arquivo não encontrado: "${inputFile}"\n`);
+  console.error(`Arquivo nao encontrado: "${inputFile}"`);
   process.exit(1);
 }
 
-// ── Lê o código-fonte ────────────────────────────────────────────────────────
+// le o codigo fonte
 const source = fs.readFileSync(inputFile, 'utf8');
 
-console.log(`\n🔤  Transpilando: ${path.resolve(inputFile)}`);
+console.log(`Transpilando: ${path.resolve(inputFile)}`);
 
-// ── Pipeline: Lexer → Parser → Gerador ───────────────────────────────────────
+// roda o lexer e depois o parser
 let pythonCode;
 try {
   const tokens = tokenize(source);
   pythonCode   = parse(tokens);
 } catch (err) {
-  console.error(`\n❌  ${err.message}\n`);
+  console.error(err.message);
   process.exit(1);
 }
 
-// ── Cabeçalho no código gerado ───────────────────────────────────────────────
+// coloca um cabecalho no Python gerado
 const header = [
-  `# Gerado pelo Transpilador Kiswahili → Python`,
+  `# Gerado pelo transpilador Kiswahili -> Python`,
   `# Fonte: ${path.basename(inputFile)}`,
-  `# ─────────────────────────────────────────────`,
   ''
 ].join('\n');
 
 const finalCode = header + pythonCode + '\n';
 
-// ── Saída ─────────────────────────────────────────────────────────────────────
+// imprime na tela ou salva no arquivo
 if (outputFile) {
   fs.writeFileSync(outputFile, finalCode, 'utf8');
-  console.log(`✅  Python gerado em: ${path.resolve(outputFile)}`);
-  console.log(`▶️   Execute com:  python ${outputFile}\n`);
+  console.log(`Python gerado em: ${path.resolve(outputFile)}`);
+  console.log(`Execute com: python ${outputFile}`);
 } else {
-  console.log(`\n${'─'.repeat(50)}\n`);
+  console.log('');
   console.log(finalCode);
-  console.log('─'.repeat(50));
-  console.log('\n💡  Use  -o saida.py  para salvar em arquivo.\n');
 }
