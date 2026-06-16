@@ -1,50 +1,100 @@
 # Transpilador Kiswahili → Python
 
-Transpila programas escritos na linguagem **Kiswahili** para **Python 3**.
+Projeto desenvolvido para a disciplina de **Teoria da Computação e Compiladores**, com o objetivo de criar uma linguagem fictícia baseada no idioma **Suaíli (Kiswahili)** e transpilar seu código para Python.
 
-## Estrutura do projeto
+## Funcionalidades
 
+* Análise Léxica (Lexer)
+* Análise Sintática (Parser)
+* Análise Semântica
+* Tabela de Símbolos
+* Geração de Código Python
+* Interface Web para testes
+* Execução do código Python no navegador utilizando Pyodide
+
+## Estrutura do Projeto
+
+```text
+.
+├── frontend/
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+│
+├── lexer.js
+├── parser.js
+├── transpilador.js
+└── README.md
 ```
-transpilador/
-├── transpilador.js   ← ponto de entrada (CLI)
-├── lexer.js          ← análise léxica
-├── parser.js         ← análise sintática, semântica e geração de código
-├── README.md
-└── exemplos/
-    ├── ola_mundo.swh
-    ├── fatorial.swh
-    ├── fibonacci.swh
-    ├── dowhile.swh
-    └── par_impar.swh
+
+## Como Executar
+
+### Interface Web
+
+1. Abra o projeto no VS Code.
+2. Instale a extensão **Live Server**.
+3. Abra o arquivo:
+
+```text
+frontend/index.html
 ```
 
-## Requisitos
+4. Clique com o botão direito e selecione:
 
-- [Node.js](https://nodejs.org/) (qualquer versão ≥ 14)
-- Não precisa instalar nenhum pacote (`npm install`)
+```text
+Open with Live Server
+```
 
-## Como usar
+5. Digite um código em Kiswahili e clique em **TRANSPILAR E EXECUTAR**.
 
-### 1. Imprimir Python no terminal
+### Terminal (Node.js)
+
+Executar exibindo o Python gerado:
+
 ```bash
-node transpilador.js exemplos/fatorial.swh
+node transpilador.js programa.swh
 ```
 
-### 2. Salvar em arquivo e executar
+Gerar um arquivo Python:
+
 ```bash
-node transpilador.js exemplos/fatorial.swh -o saida.py
-python saida.py
+node transpilador.js programa.swh -o programa.py
 ```
 
-### 3. Rodar todos os exemplos de uma vez
+Executar o Python gerado:
+
 ```bash
-for f in exemplos/*.swh; do
-  echo "=== $f ===";
-  node transpilador.js "$f";
-done
+python programa.py
 ```
 
----
+## Exemplo
+
+Código Kiswahili:
+
+```swahili
+chapisha("Olá Mundo");
+```
+
+Python gerado:
+
+```python
+print("Olá Mundo")
+```
+
+Saída:
+
+```text
+Olá Mundo
+```
+
+## Tecnologias
+
+* JavaScript
+* HTML5
+* CSS3
+* Node.js
+* Pyodide
+
 
 ## Linguagem Kiswahili — Referência rápida
 
@@ -106,3 +156,8 @@ while i <= n:
     i = i + 1
 print(fat)
 ```
+
+## Autor
+
+**Vitor Reis**, **Rodrigo Balthazar**, **Samuel Peixoto**
+Ciência da Computação – UNIFACS
