@@ -3,7 +3,7 @@
 // A análise semântica (escopo, declarações) é feita embutida.
 // O código Python é emitido diretamente durante a análise.
 
-const { TK } = require('./lexer');
+import { TK } from '../lexer.js';
 
 function parse(tokens) {
   let pos = 0;
@@ -317,4 +317,4 @@ function parse(tokens) {
   return output.join('\n');
 }
 
-module.exports = { parse };
+export { parse };

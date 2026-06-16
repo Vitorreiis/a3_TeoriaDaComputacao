@@ -119,4 +119,4 @@ function tokenize(src) {
   return tokens;
 }
 
-module.exports = { TK, tokenize };
+export { TK, tokenize };

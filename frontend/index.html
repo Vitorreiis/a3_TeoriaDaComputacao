@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transpilador Kiswahili</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Transpilador Kiswahili → Python</h1>
+    <div class="subTitulo">
+        <h5>Autores: Vitor Reis, Rodrigo Balthazar e Samuel Peixoto </h5>
+        <h5>Orientador: Samuel Sidney da Silva Xavier </h5>
+    </div>
+    <div class="painel">
+
+        <h2>Código Kiswahili</h2>
+
+        <textarea id="codigo"
+        spellcheck="false"
+        autocorrect="off"
+        autocapitalize="off"
+        autocomplete="off"
+        >chapisha("Olá Mundo");</textarea>
+
+        <button id="btnTranspilar">
+            TRANSPILAR
+        </button>
+
+    </div>
+
+    <div class="resultados">
+
+        <div class="painel">
+            <h2>Tokens</h2>
+            <pre id="tokens"></pre>
+        </div>
+
+        <div class="painel">
+            <h2>Python Gerado</h2>
+            <pre id="python"></pre>
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module" src="app.js"></script>
+
+</body>
+</html>
